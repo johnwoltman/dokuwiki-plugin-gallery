@@ -1,5 +1,6 @@
 /* DOKUWIKI:include_once swipebox/js/jquery.swipebox.js */
-
+/* DOKUWIKI:include_once unitegallery/js/unitegallery.min.js */
+/* DOKUWIKI:include_once unitegallery/js/ug-theme-tiles.js */
 
 jQuery(function () {
 
@@ -45,10 +46,17 @@ jQuery(function () {
 
     // === main ===
 
-    // initialize the lightbox mechanism
-    jQuery("a.lightbox, a[rel^='lightbox']").swipebox({
-        loopAtEnd: true
+    // // initialize the lightbox mechanism
+
+    jQuery("#gallery").unitegallery({    
+        gallery_theme: "tiles",     //example how to change only skin for slider bullets
+        tiles_col_width: 150,
+        tiles_type:"justified"
     });
+
+    // jQuery("a.lightbox, a[rel^='lightbox']").swipebox({
+    //     loopAtEnd: true
+    // });
 
     gallery_plugin();
 

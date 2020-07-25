@@ -80,6 +80,7 @@ class syntax_plugin_gallery extends DokuWiki_Syntax_Plugin {
         $data['cols']     = $this->getConf('cols');
         $data['filter']   = '';
         $data['lightbox'] = false;
+        $data['unite']    = false;
         $data['direct']   = false;
         $data['showname'] = false;
         $data['showtitle'] = false;
@@ -97,6 +98,7 @@ class syntax_plugin_gallery extends DokuWiki_Syntax_Plugin {
         $params = $this->getConf('options').','.$params;
         $params = preg_replace('/[,&\?]+/',' ',$params);
         $params = explode(' ',$params);
+        file_put_contents('php://stdout', print_r($params, TRUE));
         foreach($params as $param){
             if($param === '') continue;
             if($param == 'titlesort'){
@@ -105,6 +107,8 @@ class syntax_plugin_gallery extends DokuWiki_Syntax_Plugin {
                 $data['sort'] = 'date';
             }elseif($param == 'modsort'){
                 $data['sort'] = 'mod';
+            }elseif($param == 'unite') {            
+                $data['lightbox'] = 'unite';
             }elseif(preg_match('/^=(\d+)$/',$param,$match)){
                 $data['limit'] = $match[1];
             }elseif(preg_match('/^\+(\d+)$/',$param,$match)){
@@ -135,8 +139,11 @@ class syntax_plugin_gallery extends DokuWiki_Syntax_Plugin {
         }
 
         // implicit direct linking?
-        if($data['lightbox']) $data['direct']   = true;
+        if($data['lightbox']) {
+            $data['direct'] = true;
+        }
 
+        file_put_contents('php://stdout', print_r($data, TRUE));
 
         return $data;
     }
@@ -443,6 +450,16 @@ class syntax_plugin_gallery extends DokuWiki_Syntax_Plugin {
                 $ret .= '</table>';
                 $ret .= '</div>';
             }
+
+        } elseif ($data['lightbox'] === 'unite') {
+            file_put_contents('php://stdout', print_r($data, TRUE));
+            $ret = '<div id="gallery">';            
+            
+            foreach($files as $img) {
+                $ret .= $this->_image($img,$data);
+            }
+            $ret .= '</div><!-- close gallery -->';
+            return $ret;
         }else{ // format as div sequence
             $i = 0;
             $close_pg = false;
@@ -518,8 +535,12 @@ class syntax_plugin_gallery extends DokuWiki_Syntax_Plugin {
         $i['width']    = $w;
         $i['height']   = $h;
         $i['border']   = 0;
-        $i['alt']      = $this->_meta($img,'title');
+        $i['alt']      = $this->_meta($img,'desc');
         $i['class']    = 'tn';
+        // Unite Gallery attributes
+
+        $i['data-description'] = trim(str_replace("\n",' ',$this->_meta($img,'desc')));
+        $i['data-image'] = ml($img['id'],$dim_lightbox);
         $iatt = buildAttributes($i);
         $src  = ml($img['id'],$dim);
 
